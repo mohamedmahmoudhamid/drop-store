@@ -10,17 +10,15 @@ import {
   Snackbar,
   Alert,
   Chip,
-  Tooltip,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
-import { ShoppingCartOutlined, ShoppingCart, Favorite, FavoriteBorder } from "@mui/icons-material";
-import img1 from "../../../assets/img.jpg";
-import img2 from "../../../assets/logo.jpg";
+import { ShoppingCartOutlined, ShoppingCart } from "@mui/icons-material";
 import { useStore } from "../context/StoreContext";
+import apiLink from "../../../apiLink";
 
 const ProductDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // هنا id = documentId
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -36,38 +34,71 @@ const ProductDetails = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       setLoading(true);
+      try {
+        const res = await fetch(
+          `${apiLink}/products?filters[documentId][$eq]=${id}&populate=*`
+        );
+        const data = await res.json();
 
-      const data = {
-        id,
-        title: "Hoodie",
-        description: "High-quality cotton hoodie. Soft and durable.",
-        oldPrice: 150,
-        newPrice: 100,
-        available: true,
-        images: [img1, img2, img1],
-        sizes: [
-          { label: "M", available: true },
-          { label: "L", available: true },
-          { label: "XL", available: false },
-          { label: "XXL", available: true },
-        ],
-        colors: [
-          { label: "Black", hex: "#000", available: true },
-          { label: "White", hex: "#fff", available: true },
-          { label: "Gray", hex: "#808080", available: false },
-        ],
-      };
-      setProduct(data);
-      setLoading(false);
+        if (data?.data?.length) {
+          const p = data.data[0];
+
+          const formatted = {
+            id: p.documentId,
+            name: p.name,
+            description: p.description,
+            price: p.price,
+            final_price: p.final_price,
+            available: p.product_variants?.some((v) => v.quantity > 0) || false,
+            images:
+              p.images && p.images.length > 0
+                ? p.images.map((img) =>
+                    img.formats?.medium?.url
+                      ? img.formats.medium.url
+                      : img.url
+                      ? img.url
+                      : "https://via.placeholder.com/500x500?text=No+Image"
+                  )
+                : ["https://via.placeholder.com/500x500?text=No+Image"],
+
+            sizes: [
+              ...new Set(p.product_variants?.map((v) => v.size) || []),
+            ].map((s) => ({
+              label: s,
+              available: p.product_variants.some(
+                (v) => v.size === s && v.quantity > 0
+              ),
+            })),
+            colors: [
+              ...new Set(p.product_variants?.map((v) => v.colorName) || []),
+            ].map((c) => {
+              const variant = p.product_variants.find((v) => v.colorName === c);
+              return {
+                label: c,
+                hex: variant?.colorHex || variant?.colorCode || "#000", // لو عندك colorHex أو colorCode في البيانات
+                available: variant?.quantity > 0,
+              };
+            }),
+          };
+
+          setProduct(formatted);
+        } else {
+          console.error("❌ No product found");
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+      } finally {
+        setLoading(false);
+      }
     };
+
     fetchProduct();
   }, [id]);
 
   useEffect(() => {
     if (product) {
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
-     setInCart(cart.some((i) => i.id === product.id));
-      
+      setInCart(cart.some((i) => i.id === product.id));
     }
   }, [product]);
 
@@ -82,10 +113,10 @@ const ProductDetails = () => {
     } else {
       const newItem = {
         id: product.id,
-        title: product.title,
+        name: product.name,
         description: product.description,
-        newPrice: product.newPrice,
-        oldPrice: product.oldPrice,
+        price: product.price,
+        final_price: product.final_price,
         image: product.images[0],
         size,
         color,
@@ -101,8 +132,6 @@ const ProductDetails = () => {
     setOpen(true);
   };
 
- 
-
   const handleNext = () => {
     setCurrentIndex((prev) =>
       prev === product.images.length - 1 ? 0 : prev + 1
@@ -117,8 +146,30 @@ const ProductDetails = () => {
 
   if (loading)
     return (
-      <Box sx={{ height: "80vh", display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <Box
+        sx={{
+          height: "80vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <CircularProgress />
+      </Box>
+    );
+
+  if (!product)
+    return (
+      <Box
+        sx={{
+          height: "80vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          color: "gray",
+        }}
+      >
+        المنتج غير موجود
       </Box>
     );
 
@@ -135,6 +186,7 @@ const ProductDetails = () => {
         borderRadius: 3,
       }}
     >
+      {/* صور المنتج */}
       <Box sx={{ position: "relative", width: { xs: "100%", md: "40%" } }}>
         <Box
           component="img"
@@ -161,7 +213,6 @@ const ProductDetails = () => {
           }}
         />
 
-       
         <IconButton
           onClick={handlePrev}
           sx={{
@@ -189,9 +240,10 @@ const ProductDetails = () => {
         </IconButton>
       </Box>
 
+      {/* تفاصيل المنتج */}
       <Box sx={{ maxWidth: 500 }}>
         <Typography variant="h4" fontWeight="bold" mb={2}>
-          {product.title}
+          {product.name}
         </Typography>
 
         <Typography color="text.secondary" mb={2}>
@@ -201,12 +253,13 @@ const ProductDetails = () => {
         <Divider sx={{ my: 2 }} />
 
         <Typography variant="body2" color="text.secondary">
-          <del>${product.oldPrice}</del>
+          <del>EGP {product.price}</del>
         </Typography>
         <Typography variant="h5" fontWeight="bold" color="primary" mb={3}>
-          ${product.newPrice}
+          EGP {product.final_price}
         </Typography>
 
+        {/* المقاسات */}
         <Typography fontWeight="bold" mb={1}>
           المقاس
         </Typography>
@@ -214,15 +267,23 @@ const ProductDetails = () => {
           {product.sizes.map((s) => (
             <Button
               key={s.label}
-              variant={size === s.label ? "contained" : "outlined"}
               onClick={() => s.available && setSize(s.label)}
               disabled={!s.available}
               sx={{
                 minWidth: 50,
                 borderRadius: 2,
-                color: s.available ? "#000" : "#999",
+                fontWeight: "bold",
+                border: "2px solid #000",
+                color: s.available
+                  ? size === s.label
+                    ? "#fff"
+                    : "#000"
+                  : "#999",
                 backgroundColor: size === s.label ? "#000" : "#fff",
-                "&:hover": { backgroundColor: s.available ? "#000" : "#f0f0f0", color: "#fff" },
+                "&:hover": {
+                  backgroundColor: s.available ? "#000" : "#f0f0f0",
+                  color: "#fff",
+                },
               }}
             >
               {s.label}
@@ -230,6 +291,7 @@ const ProductDetails = () => {
           ))}
         </Box>
 
+        {/* الألوان */}
         <Typography fontWeight="bold" mb={1}>
           اللون
         </Typography>
@@ -268,6 +330,7 @@ const ProductDetails = () => {
         </Button>
       </Box>
 
+      {/* التنبيه */}
       <Snackbar
         open={open}
         autoHideDuration={2000}

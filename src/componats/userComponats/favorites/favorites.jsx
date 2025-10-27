@@ -119,9 +119,9 @@ const Favorites = () => {
 
               <CardContent sx={{ textAlign: "center" }}>
                 <Typography variant="h6" fontWeight="bold">
-                  {item.title}
+                  {item.name}
                 </Typography>
-                <Typography color="text.secondary">${item.newPrice}</Typography>
+                <Typography color="text.secondary">EGP {item.final_price}</Typography>
               </CardContent>
 
               <Box>

@@ -83,7 +83,7 @@ const Cart = () => {
   };
 
   const totalPrice = cart.reduce(
-    (sum, item) => sum + (item.newPrice || 0) * (item.quantity || 1),
+    (sum, item) => sum + (item.final_price || 0) * (item.quantity || 1),
     0
   );
 
@@ -153,9 +153,9 @@ const Cart = () => {
                   style={{ borderRadius: 10, objectFit: "cover" }}
                 />
                 <Box>
-                  <Typography fontWeight="bold">{item.title}</Typography>
+                  <Typography fontWeight="bold">{item.name}</Typography>
                   <Typography color="text.secondary" fontSize={14} mb={1}>
-                    ${item.newPrice}
+                    EGP {item.final_price}
                   </Typography>
 
                   {/* تفاصيل المنتج */}
@@ -234,7 +234,7 @@ const Cart = () => {
               </Stack>
 
               <Typography fontWeight="bold" sx={{ minWidth: 80 }}>
-                ${(item.newPrice * (item.quantity || 1)).toFixed(2)}
+                EGP {(item.final_price * (item.quantity || 1)).toFixed(2)}
               </Typography>
 
               <IconButton
@@ -276,7 +276,7 @@ const Cart = () => {
 
             <Box textAlign="right">
               <Typography fontWeight="bold" fontSize={18}>
-                الإجمالي: ${totalPrice.toFixed(2)}
+                EGP الإجمالي:  {totalPrice.toFixed(2)}
               </Typography>
               <Button
                 variant="contained"

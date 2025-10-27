@@ -1,13 +1,117 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/src/assets/logoo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Drop Store</title>
+    <style>
+      #root {
+        background: inherit;
+      }
+      body,
+      html {
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow-x: hidden;
+        scroll-behavior: smooth;
+        font-family: "Cairo", sans-serif !important;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body::-webkit-scrollbar {
+        display: none;
+      }
+      ::-webkit-scrollbar {
+        display: none;
+      }
+
+      #loading-spinner img {
+        opacity: 1;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
+          filter: drop-shadow(0 0 2px #2072af50);
+        }
+        50% {
+          transform: scale(1.08);
+          filter: drop-shadow(0 0 12px #2072afaa);
+        }
+        100% {
+          transform: scale(1);
+          filter: drop-shadow(0 0 2px #2072af50);
+        }
+      }
+    </style>
   </head>
-  <body >
+  <body>
+    <div
+      id="loading-spinner"
+      style="
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #ffffff 0%, #f4f7fb 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        overflow: hidden;
+      "
+    >
+      <div
+        style="
+          position: relative;
+          width: 150px;
+          height: 150px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        "
+      >
+        <div
+          style="
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 5px solid transparent;
+            border-top-color: #2072af;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+          "
+        ></div>
+        <img
+          src="./src/assets/logoo.png"
+          alt="logo"
+          width="90px"
+          loading="lazy"
+          style="animation: pulse 2s ease-in-out infinite"
+        />
+      </div>
+    </div>
+
     <div id="root"></div>
+    <script>
+      window.addEventListener("load", function () {
+        const spinner = document.getElementById("loading-spinner");
+        spinner.style.transition = "opacity 0.5s";
+        spinner.style.opacity = "0";
+        setTimeout(() => (spinner.style.display = "none"), 500);
+      });
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

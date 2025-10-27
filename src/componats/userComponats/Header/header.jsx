@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   AppBar,
   Toolbar,
@@ -15,19 +15,36 @@ import {
   FavoriteBorder,
   ShoppingCartOutlined,
   Menu as MenuIcon,
+  Inventory2Outlined,
 } from "@mui/icons-material";
 import logo from "../../../assets/logoo.png";
 import { Link } from "react-router-dom";
 import { useStore } from "../context/StoreContext";
-
+import apiLink from "../../../apiLink";
 
 const Header = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
   const { cartCount, favCount } = useStore();
 
+  const [ordersCount, setOrdersCount] = useState(0);
+  const isAdmin = localStorage.getItem("adminName") === "drop store admin";
+
   const toggleDrawer = (state) => () => {
     setOpenDrawer(state);
   };
+
+  useEffect(() => {
+    if (isAdmin) {
+      fetch(`${apiLink}/orders`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.data) {
+            setOrdersCount(data.data.length);
+          }
+        })
+        .catch((err) => console.error("❌ Error fetching orders count:", err));
+    }
+  }, [isAdmin]);
 
   return (
     <>
@@ -60,10 +77,9 @@ const Header = () => {
                 objectFit: "cover",
               }}
             />
-          
           </Box>
 
-          {/* Links (hidden on small screens) */}
+          {/* Links */}
           <Box
             sx={{
               display: { xs: "none", sm: "flex" },
@@ -73,31 +89,19 @@ const Header = () => {
           >
             <Link
               to="/"
-              style={{
-                textDecoration: "none",
-                color: "black",
-                fontWeight: 500,
-              }}
+              style={{ textDecoration: "none", color: "black", fontWeight: 500 }}
             >
               Home
             </Link>
             <Link
               to="/about"
-              style={{
-                textDecoration: "none",
-                color: "black",
-                fontWeight: 500,
-              }}
+              style={{ textDecoration: "none", color: "black", fontWeight: 500 }}
             >
               About
             </Link>
             <Link
               to="/contact"
-              style={{
-                textDecoration: "none",
-                color: "black",
-                fontWeight: 500,
-              }}
+              style={{ textDecoration: "none", color: "black", fontWeight: 500 }}
             >
               Contact
             </Link>
@@ -116,6 +120,14 @@ const Header = () => {
                 <ShoppingCartOutlined />
               </Badge>
             </IconButton>
+
+            {isAdmin && (
+              <IconButton color="inherit" component={Link} to="/orderTable">
+                <Badge badgeContent={ordersCount} color="error">
+                  <Inventory2Outlined />
+                </Badge>
+              </IconButton>
+            )}
 
             {/* Menu Icon (mobile) */}
             <IconButton
@@ -148,6 +160,16 @@ const Header = () => {
             <ListItem button component={Link} to="/contact">
               <ListItemText primary="Contact" />
             </ListItem>
+
+            {/* ✅ زر الطلبات برضو يظهر هنا لو الأدمن داخل */}
+            {isAdmin && (
+              <ListItem button component={Link} to="/orderTable">
+                <ListItemText
+                  primary={`Orders (${ordersCount})`}
+                  sx={{ color: "#0288d1" }}
+                />
+              </ListItem>
+            )}
           </List>
         </Box>
       </Drawer>

@@ -1,17 +1,13 @@
 
 import { Nav } from 'react-bootstrap';
-import MediaCard from '../CardProduct/prodact';
-import NavScrollExample from '../Navbar/navbar';
-import ImageSlider from '../Slider/slider';
-import NavBar from '../Navbar/navbar';
+import ProductsList from '../CardProduct/productList';
+
 
 const Home = () => {
     return (
         <div>
-      {/* <NavBar /> */}
-
-            {/* <ImageSlider /> */}
-            <MediaCard />
+    
+            <ProductsList />
             
         </div>
     );

@@ -106,6 +106,21 @@ const Footer = () => {
             >
              {"< Mohamed Mahmoud />"}
             </Link>
+         <br />
+            <Link
+              href="https://wa.me/201120203912"
+              target="_blank"
+              rel="noopener"
+              underline="none"
+              sx={{
+                color: "#F0F8FF",
+                fontWeight: 600,
+                ml: 0.5,
+                "&:hover": { textDecoration: "underline" },
+              }}
+            >
+             {"< MohamedA.Elhameid />"}
+            </Link>
           </Typography>
         </Box>
       </Box>
@@ -114,3 +129,5 @@ const Footer = () => {
 };
 
 export default Footer;
+
+

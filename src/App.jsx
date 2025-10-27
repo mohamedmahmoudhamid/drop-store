@@ -14,6 +14,8 @@ import Cart from "./componats/userComponats/cart/cart";
 import Checkout from "./componats/userComponats/Checkout/checkout";
 import { StoreProvider } from "./componats/userComponats/context/StoreContext";
 import Contact from "./componats/userComponats/Contact/Contact";
+import SignUpForAdmin from "./componats/ordersAdmin/login/signin";
+import OrderTable from "./componats/ordersAdmin/orders/orderTable";
 
 function App() {
   return (
@@ -24,9 +26,10 @@ function App() {
       <Route path="/cart" element={<Cart />} />
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/" element={<Home />} />
-      {/* <Route path="/login" element={<Login />} /> */}
+      <Route path="/login" element={<SignUpForAdmin />} />
       {/* <Route path="/register" element={<Register />} /> */}
       <Route path="/favorites" element={<Favorites />} />
+      <Route path="/orderTable" element={<OrderTable />} />
       <Route path="/product/:id" element={<ProductDetails />} />
       <Route path="/about" element={<About />} />
       <Route path="*" element={<NotFound />} />
