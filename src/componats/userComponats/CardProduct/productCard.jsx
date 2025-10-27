@@ -221,7 +221,7 @@ export default function ProductCard({ product }) {
               </Stack>
 
               <Chip
-                label={`خصم ${item.discount}%`}
+                label={`%خصم ${item.discount}`}
                 color="success"
                 size="small"
                 sx={{ fontWeight: "bold", px: 1 }}
