@@ -124,7 +124,7 @@ useEffect(() => {
             </IconButton>
 
             {isAdmin && (
-              <IconButton color="inherit" component={Link} to="/orderTable">
+              <IconButton color="inherit" component={Link} to="/orderTable" sx={{ display: { xs: "none", sm: "block" } }}>
                 <Badge badgeContent={ordersCount} color="error">
                   <Inventory2Outlined />
                 </Badge>
@@ -150,7 +150,7 @@ useEffect(() => {
           onKeyDown={toggleDrawer(false)}
         >
           <Typography variant="h6" sx={{ mb: 2, fontWeight: "bold" }}>
-            Menu
+            Drop Store
           </Typography>
           <List>
             <ListItem button component={Link} to="/">
