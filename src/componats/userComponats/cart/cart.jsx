@@ -146,6 +146,7 @@ const Cart = () => {
             >
               <Stack direction="row" spacing={2} alignItems="center">
                 <img
+                 onClick={() => navigate(`/product/${item.id}`)}
                   src={item.image}
                   alt={item.title}
                   width="80"

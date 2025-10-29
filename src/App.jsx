@@ -1,6 +1,4 @@
 import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Footer from "./componats/userComponats/Footer/footer";
@@ -16,8 +14,32 @@ import { StoreProvider } from "./componats/userComponats/context/StoreContext";
 import Contact from "./componats/userComponats/Contact/Contact";
 import SignUpForAdmin from "./componats/ordersAdmin/login/signin";
 import OrderTable from "./componats/ordersAdmin/orders/orderTable";
+import { useEffect } from "react";
 
 function App() {
+   useEffect(() => {
+    // منع right-click
+    const handleContextMenu = (e) => e.preventDefault();
+    document.addEventListener("contextmenu", handleContextMenu);
+
+    // منع اختصارات DevTools
+    const handleKeyDown = (e) => {
+      // F12
+      if (e.key === "F12") e.preventDefault();
+      // Ctrl+Shift+I / Cmd+Option+I
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "i") e.preventDefault();
+      // Ctrl+Shift+J / Cmd+Option+J
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "j") e.preventDefault();
+      // Ctrl+U / Cmd+U (عرض source)
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "u") e.preventDefault();
+    };
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("contextmenu", handleContextMenu);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
   return (
   <BrowserRouter>
   <StoreProvider>
@@ -27,7 +49,7 @@ function App() {
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<SignUpForAdmin />} />
-      {/* <Route path="/register" element={<Register />} /> */}
+    
       <Route path="/favorites" element={<Favorites />} />
       <Route path="/orderTable" element={<OrderTable />} />
       <Route path="/product/:id" element={<ProductDetails />} />

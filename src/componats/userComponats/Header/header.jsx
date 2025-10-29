@@ -24,27 +24,29 @@ import apiLink from "../../../apiLink";
 
 const Header = () => {
   const [openDrawer, setOpenDrawer] = useState(false);
-  const { cartCount, favCount } = useStore();
+const { cartCount, favCount, ordersCount, updateCounts } = useStore();
 
-  const [ordersCount, setOrdersCount] = useState(0);
+
   const isAdmin = localStorage.getItem("adminName") === "drop store admin";
 
   const toggleDrawer = (state) => () => {
     setOpenDrawer(state);
   };
 
-  useEffect(() => {
-    if (isAdmin) {
-      fetch(`${apiLink}/orders`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (data && data.data) {
-            setOrdersCount(data.data.length);
-          }
-        })
-        .catch((err) => console.error("❌ Error fetching orders count:", err));
-    }
-  }, [isAdmin]);
+useEffect(() => {
+  if (isAdmin) {
+    fetch(`${apiLink}/orders`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.data) {
+          localStorage.setItem("orders", JSON.stringify(data.data));
+          updateCounts();
+        }
+      })
+      .catch((err) => console.error("❌ Error fetching orders count:", err));
+  }
+}, [isAdmin, updateCounts]);
+
 
   return (
     <>

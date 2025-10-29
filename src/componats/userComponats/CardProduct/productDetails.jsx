@@ -95,42 +95,91 @@ const ProductDetails = () => {
     fetchProduct();
   }, [id]);
 
-  useEffect(() => {
-    if (product) {
-      const cart = JSON.parse(localStorage.getItem("cart")) || [];
-      setInCart(cart.some((i) => i.id === product.id));
-    }
-  }, [product]);
-
-  const handleCartToggle = () => {
+useEffect(() => {
+  if (product) {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    let updated;
-    if (inCart) {
-      updated = cart.filter((i) => i.id !== product.id);
-      setMessage("تمت الإزالة من السلة");
-      setSeverity("error");
-      setInCart(false);
-    } else {
-      const newItem = {
-        id: product.id,
-        name: product.name,
-        description: product.description,
-        price: product.price,
-        final_price: product.final_price,
-        image: product.images[0],
-        size,
-        color,
-        quantity: 1,
-      };
-      updated = [...cart, newItem];
-      setMessage("تمت الإضافة إلى السلة");
-      setSeverity("success");
+    const productSelections = JSON.parse(localStorage.getItem("productSelections")) || {};
+    const item = cart.find((i) => i.id === product.id);
+    
+    if (item) {
       setInCart(true);
+      setSize(item.selectedSize || item.size || "");
+      setColor(item.selectedColor || item.color || "");
+    } else {
+      setInCart(false);
+      // قراءة الاختيارات المحفوظة من productSelections
+      const savedSelections = productSelections[product.id];
+      if (savedSelections) {
+        setSize(savedSelections.selectedSize || "");
+        setColor(savedSelections.selectedColor || "");
+      } else {
+        setSize("");
+        setColor("");
+      }
     }
-    localStorage.setItem("cart", JSON.stringify(updated));
-    updateCounts();
+  }
+}, [product]);
+
+const handleCartToggle = () => {
+  if (!size || !color) {
+    setMessage("يجب اختيار المقاس واللون أولا");
+    setSeverity("warning");
     setOpen(true);
-  };
+    return;
+  }
+
+  const cart = JSON.parse(localStorage.getItem("cart")) || [];
+  let updated;
+
+  if (inCart) {
+    updated = cart.filter((i) => i.id !== product.id);
+    setMessage("تمت الإزالة من السلة");
+    setSeverity("error");
+    setInCart(false);
+    setSize("");
+    setColor("");
+  } else {
+    const newItem = {
+      id: product.id,
+      name: product.name,
+      description: product.description,
+      price: product.price,
+      final_price: product.final_price,
+      image: product.images[0],
+      selectedSize: size,
+      selectedColor: color,
+      size,
+      color,
+      quantity: 1,
+    };
+
+    const existingIndex = cart.findIndex((i) => i.id === product.id);
+    if (existingIndex > -1) {
+      cart[existingIndex] = newItem;
+      updated = [...cart];
+    } else {
+      updated = [...cart, newItem];
+    }
+
+    // حفظ الاختيارات في productSelections
+    const productSelections = JSON.parse(localStorage.getItem("productSelections")) || {};
+    productSelections[product.id] = {
+      selectedColor: color,
+      selectedSize: size
+    };
+    localStorage.setItem("productSelections", JSON.stringify(productSelections));
+
+    setMessage("تمت الإضافة إلى السلة");
+    setSeverity("success");
+    setInCart(true);
+  }
+
+  localStorage.setItem("cart", JSON.stringify(updated));
+  updateCounts();
+  setOpen(true);
+};
+
+
 
   const handleNext = () => {
     setCurrentIndex((prev) =>
@@ -172,6 +221,8 @@ const ProductDetails = () => {
         المنتج غير موجود
       </Box>
     );
+
+    
 
   return (
     <Box
@@ -219,7 +270,7 @@ const ProductDetails = () => {
             position: "absolute",
             top: "50%",
             left: 10,
-            backgroundColor: "rgba(0,0,0,0.4)",
+            backgroundColor: "rgba(0, 0, 0, 0.18)",
             color: "#fff",
           }}
         >
@@ -260,9 +311,9 @@ const ProductDetails = () => {
         </Typography>
 
         {/* المقاسات */}
-        <Typography fontWeight="bold" mb={1}>
-          المقاس
-        </Typography>
+        <div fontWeight="bold" mb={1}>
+          المقاس {size && <Chip label={`المحدد: ${size}`} color="primary" size="small" sx={{ ml: 1 }} />}
+        </div>
         <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 3 }}>
           {product.sizes.map((s) => (
             <Button
@@ -273,15 +324,15 @@ const ProductDetails = () => {
                 minWidth: 50,
                 borderRadius: 2,
                 fontWeight: "bold",
-                border: "2px solid #000",
+                border: size === s.label ? "3px solid #1976d2" : "2px solid #0d72ffff",
                 color: s.available
                   ? size === s.label
                     ? "#fff"
-                    : "#000"
+                    : "#0777afff"
                   : "#999",
-                backgroundColor: size === s.label ? "#000" : "#fff",
+                backgroundColor: size === s.label ? "#1976d2" : "#fff",
                 "&:hover": {
-                  backgroundColor: s.available ? "#000" : "#f0f0f0",
+                  backgroundColor: s.available ? "#4bd211ff" : "#f0f0f0",
                   color: "#fff",
                 },
               }}
@@ -293,25 +344,45 @@ const ProductDetails = () => {
 
         {/* الألوان */}
         <Typography fontWeight="bold" mb={1}>
-          اللون
+          اللون {color && <Chip label={`المحدد: ${color}`} color="primary" size="small" sx={{ ml: 1 }} />}
         </Typography>
-        <Box sx={{ display: "flex", gap: 1.5, mb: 4 }}>
-          {product.colors.map((c) => (
-            <Box
-              key={c.label}
-              onClick={() => c.available && setColor(c.label)}
-              sx={{
-                width: 35,
-                height: 35,
-                borderRadius: "50%",
-                backgroundColor: c.hex,
-                border: color === c.label ? "3px solid #000" : "2px solid #ccc",
-                opacity: c.available ? 1 : 0.4,
-                cursor: c.available ? "pointer" : "not-allowed",
-              }}
-            />
-          ))}
+     <Box sx={{ display: "flex", gap: 1.5, mb: 4 }}>
+  {product.colors.map((c) => (
+    <Box
+      key={c.label}
+      onClick={() => c.available && setColor(c.label)}
+      sx={{
+        width: 40,
+        height: 40,
+        borderRadius: "50%",
+        backgroundColor: c.hex,
+        border:
+          color === c.label ? "3px solid #1976d2" : "2px solid #ccc",
+        opacity: c.available ? 1 : 0.4,
+        cursor: c.available ? "pointer" : "not-allowed",
+        position: "relative",
+        boxShadow: color === c.label ? "0 0 10px rgba(25, 118, 210, 0.5)" : "none",
+      }}
+    >
+      {color === c.label && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            color: "#fff",
+            fontSize: 18,
+            fontWeight: "bold",
+            textShadow: "1px 1px 2px rgba(0,0,0,0.5)",
+          }}
+        >
+          ✓
         </Box>
+      )}
+    </Box>
+  ))}
+</Box>
 
         <Button
           variant={inCart ? "outlined" : "contained"}

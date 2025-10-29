@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import "./productcard.css";
 import {
   Card,
   CardContent,
@@ -48,21 +49,36 @@ export default function ProductCard({ product }) {
     const favorites = JSON.parse(localStorage.getItem("favorites")) || [];
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-    setIsFavorite(favorites.some((fav) => fav.id === item.id));
-    setInCart(cart.some((c) => c.id === item.id));
+    const inFav = favorites.some((fav) => fav.id === item.id);
+    const inCartItem = cart.find((c) => c.id === item.id);
+
+    setIsFavorite(inFav);
+    setInCart(!!inCartItem);
+
+    if (inCartItem) {
+      setSelectedColor(inCartItem.selectedColor || "");
+      setSelectedSize(inCartItem.selectedSize || "");
+    } else {
+      setSelectedColor("");
+      setSelectedSize("");
+    }
   }, [item.id]);
 
   const handleAddToCart = (item) => {
     if (inCart) {
+      // إزالة من السلة ومسح الاختيارات المخزنة لهذا المنتج
       const cart = JSON.parse(localStorage.getItem("cart")) || [];
       const updated = cart.filter((p) => p.id !== item.id);
       localStorage.setItem("cart", JSON.stringify(updated));
       setMessage("تمت الإزالة من السلة");
       setInCart(false);
+      setSelectedColor("");
+      setSelectedSize("");
       setSeverity("error");
       updateCounts();
       setOpen(true);
     } else {
+      // افتح المودال للاختيار
       setShowOptionsModal(true);
     }
   };
@@ -76,6 +92,10 @@ export default function ProductCard({ product }) {
     }
 
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
+
+    // لو المنتج موجود بالفعل حدث اختياراته بدل ما تضيف نسخة جديدة
+    const existingIndex = cart.findIndex((c) => c.id === item.id);
+
     const cartItem = {
       ...item,
       quantity: 1,
@@ -83,15 +103,32 @@ export default function ProductCard({ product }) {
       selectedSize,
     };
 
-    const updated = [...cart, cartItem];
+    let updated;
+    if (existingIndex > -1) {
+      updated = [...cart];
+      updated[existingIndex] = cartItem;
+    } else {
+      updated = [...cart, cartItem];
+    }
+
     localStorage.setItem("cart", JSON.stringify(updated));
+
+    // حفظ اختيارات اللون والمقاس للمنتج في localStorage منفصل
+    const productSelections =
+      JSON.parse(localStorage.getItem("productSelections")) || {};
+    productSelections[item.id] = {
+      selectedColor,
+      selectedSize,
+    };
+    localStorage.setItem(
+      "productSelections",
+      JSON.stringify(productSelections)
+    );
 
     setMessage("تمت الإضافة إلى السلة");
     setInCart(true);
     setSeverity("success");
     setShowOptionsModal(false);
-    setSelectedColor("");
-    setSelectedSize("");
     updateCounts();
     setOpen(true);
   };
@@ -120,34 +157,47 @@ export default function ProductCard({ product }) {
 
   return (
     <>
-      <Fade in timeout={500}>
+      <Fade className="fade" in timeout={500}>
         <Card
           sx={{
             borderRadius: "33px 5px 18px 5px",
-            m: 2,
+            p: { xs: 0.5, sm: 0.5, md: 0 },
             overflow: "hidden",
             boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-            transition: "transform 0.3s ease, box-shadow 0.3s ease",
+            transition: "all 0.3s ease, box-shadow 0.3s ease",
             cursor: "pointer",
             position: "relative",
             background:
               "linear-gradient(to bottom right,#ffffff,#f7f8fa,#f2f4f8)",
+            // width: "100%",
+            width: {  xs: 180, sm: 200, md: 250 ,lg:280},
+            maxWidth: "none",
+            height: "100%",
+            display: "flex",
+            opacity: 1,
+            
+            flexDirection: "column",
             "&:hover": {
-              transform: "translateY(-5px)",
+             
               boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
+
             },
+           
           }}
+         
+          className="card"
         >
           <Chip
             label={item.available ? "متاح" : "غير متاح"}
             color={item.available ? "success" : "error"}
             sx={{
               position: "absolute",
-              top: 12,
-              left: 12,
+              top: { xs: 8, sm: 12 },
+              left: { xs: 8, sm: 12 },
               fontWeight: "bold",
-              fontSize: "0.8rem",
+              fontSize: { xs: "0.65rem", sm: "0.8rem" },
               zIndex: 2,
+              height: { xs: 20, sm: 24 },
             }}
           />
 
@@ -156,39 +206,69 @@ export default function ProductCard({ product }) {
               onClick={() => handleToggleFavorite(item)}
               sx={{
                 position: "absolute",
-                top: 12,
-                right: 12,
-                backgroundColor: "rgba(255,255,255,0.9)",
+                top: { xs: 8, sm: 12 },
+                right: { xs: 8, sm: 12 },
+                backgroundColor: "rgba(255, 255, 255, 0.49)",
                 "&:hover": { backgroundColor: "#fff" },
                 zIndex: 2,
+                width: { xs: 32, sm: 40 },
+                height: { xs: 32, sm: 40 },
+              
               }}
             >
               {isFavorite ? (
-                <Favorite sx={{ color: "#e53935", fontSize: 26 }} />
+                <Favorite
+                  sx={{ color: "#e53935", fontSize: { xs: 20, sm: 26 } }}
+                />
               ) : (
-                <FavoriteBorder sx={{ color: "#444", fontSize: 26 }} />
+                <FavoriteBorder
+                  sx={{ color: "#444", fontSize: { xs: 20, sm: 26 } }}
+                />
               )}
             </IconButton>
           </Tooltip>
+<Box sx={{ overflow: "hidden", borderRadius: "8px 8px 0 0" }}> 
 
           <CardMedia
             component="img"
-            height="240"
             image={item.image}
             alt={item.name}
             onClick={() => navigate(`/product/${item.id}`)}
             sx={{
+              width: "100%",
+              height: 140,
               objectFit: "cover",
               borderBottom: "1px solid #eee",
+            overflow: "hidden",
               opacity: item.available ? 1 : 0.6,
+              flexShrink: 0,
+              borderRadius: "8px 8px 0 0",
+              transition: "transform 0.3s ease",
+              backgroundColor: "#f5f5f5",
+              "&:hover": { transform: "scale(1.3)" },
             }}
-            />
 
-          <CardContent>
+          />
+</Box>
+
+          <CardContent
+            sx={{
+              flexGrow: 1,
+              display: "flex",
+              flexDirection: "column",
+              p: { xs: 1.5, sm: 2 },
+            }}
+          >
             <Typography
-              variant="h6"
+              variant={{ xs: "subtitle1", sm: "h6" }}
               fontWeight="bold"
-              sx={{ mb: 0.5, textTransform: "capitalize", color: "#222" }}
+              sx={{
+                mb: 0.5,
+                textTransform: "capitalize",
+                color: "#222",
+                fontSize: { xs: "0.9rem", sm: "1.1rem", md: "1.25rem" },
+                lineHeight: 1.2,
+              }}
             >
               {item.name}
             </Typography>
@@ -196,36 +276,70 @@ export default function ProductCard({ product }) {
             <Typography
               variant="body2"
               color="text.secondary"
-              sx={{ height: 40, overflow: "hidden", textOverflow: "ellipsis" }}
+              sx={{
+                height: { xs: 32, sm: 36, md: 40 },
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.875rem" },
+                lineHeight: 1.3,
+              }}
             >
               {item.description}
             </Typography>
 
-            <Divider sx={{ my: 1.5 }} />
+            <Divider />
 
             <Stack
-              direction="row"
+              direction="column"
               alignItems="center"
-              justifyContent="space-between"
+              justifyContent="center"
+              spacing={1}
+              // sx={{ mb: 1 }}
             >
-              <Stack direction="row" spacing={1} alignItems="baseline">
+              <Stack
+                direction="column"
+                display="flex"
+                justifyContent="center"
+                spacing={{ xs: 1, sm: 1 }}
+                alignItems="center"
+              >
+                {item.discount > 0 && (
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      textDecoration: "line-through",
+                      color: "#999",
+                      fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.875rem" },
+                    }}
+                  >
+                    EGP {item.price}
+                  </Typography>
+                )}
+
+                {item.discount > 0 && (
+                  <Chip
+                    label={`%خصم ${item.discount}`}
+                    color="success"
+                    size="small"
+                    sx={{
+                      fontWeight: "bold",
+                      px: 1,
+                      fontSize: { xs: "0.65rem", sm: "0.75rem" },
+                      height: { xs: 20, sm: 24 },
+                    }}
+                  />
+                )}
                 <Typography
-                  variant="body2"
-                  sx={{ textDecoration: "line-through", color: "#999" }}
+                  variant={{ xs: "subtitle2", sm: "h6" }}
+                  fontWeight="bold"
+                  color="primary"
+                  sx={{
+                    fontSize: { xs: "0.9rem", sm: "1.1rem", md: "1.25rem" },
+                  }}
                 >
-                  EGP {item.price}
-                </Typography>
-                <Typography variant="h6" fontWeight="bold" color="primary">
                   EGP {item.final_price}
                 </Typography>
               </Stack>
-
-              <Chip
-                label={`%خصم ${item.discount}`}
-                color="success"
-                size="small"
-                sx={{ fontWeight: "bold", px: 1 }}
-              />
             </Stack>
 
             <Button
@@ -236,11 +350,13 @@ export default function ProductCard({ product }) {
               onClick={() => handleAddToCart(item)}
               disabled={!item.available}
               sx={{
-                mt: 2,
+                mt: "auto",
                 borderRadius: 3,
-                py: 1,
+                py: { xs: 0.8, sm: 1 },
                 fontWeight: "bold",
                 textTransform: "none",
+                fontSize: { xs: "0.75rem", sm: "0.875rem" },
+                minHeight: { xs: 36, sm: 40 },
               }}
             >
               {inCart ? "إزالة من السلة" : "أضف للسلة"}
@@ -293,75 +409,96 @@ export default function ProductCard({ product }) {
         </DialogTitle>
 
         <DialogContent sx={{ p: 2 }}>
-          <Stack spacing={3}>
-            {/* الألوان */}
-            <Box>
-              <Typography variant="subtitle1" sx={{ mb: 1.5, fontWeight: "bold" }}>
-                اللون
-              </Typography>
-              <Grid container spacing={1}>
-                {item.colors?.map((color, index) => (
-                  <Grid item xs={3} key={index}>
-                    <Paper
-                      elevation={selectedColor === color ? 4 : 1}
-                      sx={{
-                        p: 1.5,
-                        textAlign: "center",
-                        cursor: "pointer",
-                        borderRadius: 2,
-                        border:
-                          selectedColor === color
-                            ? "2px solid #1976d2"
-                            : "1px solid #e0e0e0",
-                        backgroundColor:
-                          selectedColor === color ? "#e3f2fd" : "white",
-                      }}
-                      onClick={() => setSelectedColor(color)}
-                    >
-                      <Typography variant="caption">{color}</Typography>
-                    </Paper>
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
+         <Stack spacing={3}>
+  {/* الألوان */}
+  {item.product_variants?.some((v) => v.quantity > 0) && (
+    <Box>
+      <Typography
+        variant="subtitle1"
+        sx={{ mb: 1.5, fontWeight: "bold" }}
+      >
+        اللون
+      </Typography>
+      <Grid container spacing={1}>
+        {[...new Set(item.product_variants
+          .filter((v) => v.quantity > 0)
+          .map((v) => v.colorName))].map((color, index) => (
+          <Grid item xs={3} key={index}>
+            <Paper
+              elevation={selectedColor === color ? 4 : 1}
+              sx={{
+                p: 1.5,
+                textAlign: "center",
+                cursor: "pointer",
+                borderRadius: 2,
+                border:
+                  selectedColor === color
+                    ? "2px solid #1976d2"
+                    : "1px solid #e0e0e0",
+                backgroundColor:
+                  selectedColor === color ? "#e3f2fd" : "white",
+              }}
+              onClick={() => setSelectedColor(color)}
+            >
+              <Typography variant="caption">{color}</Typography>
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
+  )}
 
-            {/* المقاسات */}
-            <Box>
-              <Typography variant="subtitle1" sx={{ mb: 1.5, fontWeight: "bold" }}>
-                المقاس
+  {/* المقاسات */}
+  {item.product_variants?.some((v) => v.quantity > 0) && (
+    <Box>
+      <Typography
+        variant="subtitle1"
+        sx={{ mb: 1.5, fontWeight: "bold" }}
+      >
+        المقاس
+      </Typography>
+      <Grid container spacing={1}>
+        {[...new Set(item.product_variants
+          .filter((v) => 
+            v.quantity > 0 &&
+            (!selectedColor || v.colorName === selectedColor)
+          )
+          .map((v) => v.size))].map((size, index) => (
+          <Grid item xs={3} key={index}>
+            <Paper
+              elevation={selectedSize === size ? 4 : 1}
+              sx={{
+                p: 1.5,
+                textAlign: "center",
+                cursor: "pointer",
+                borderRadius: 2,
+                border:
+                  selectedSize === size
+                    ? "2px solid #1976d2"
+                    : "1px solid #e0e0e0",
+                backgroundColor:
+                  selectedSize === size ? "#e3f2fd" : "white",
+              }}
+              onClick={() => setSelectedSize(size)}
+            >
+              <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                {size}
               </Typography>
-              <Grid container spacing={1}>
-                {item.sizes?.map((size, index) => (
-                  <Grid item xs={2} key={index}>
-                    <Paper
-                      elevation={selectedSize === size ? 4 : 1}
-                      sx={{
-                        p: 1.5,
-                        textAlign: "center",
-                        cursor: "pointer",
-                        borderRadius: 2,
-                        border:
-                          selectedSize === size
-                            ? "2px solid #1976d2"
-                            : "1px solid #e0e0e0",
-                        backgroundColor:
-                          selectedSize === size ? "#e3f2fd" : "white",
-                      }}
-                      onClick={() => setSelectedSize(size)}
-                    >
-                      <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                        {size}
-                      </Typography>
-                    </Paper>
-                  </Grid>
-                ))}
-              </Grid>
-            </Box>
-          </Stack>
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
+    </Box>
+  )}
+</Stack>
         </DialogContent>
 
         <DialogActions sx={{ p: 2, gap: 1 }}>
-          <Button onClick={() => setShowOptionsModal(false)} variant="outlined" size="small">
+          <Button
+            onClick={() => setShowOptionsModal(false)}
+            variant="outlined"
+            size="small"
+          >
             إلغاء
           </Button>
           <Button

@@ -5,19 +5,21 @@ const StoreContext = createContext();
 export const StoreProvider = ({ children }) => {
   const [cartCount, setCartCount] = useState(0);
   const [favCount, setFavCount] = useState(0);
+  const [ordersCount, setOrdersCount] = useState(0); // عداد الطلبات
 
-  // تحديث العدادات عند التغير في localStorage
   const updateCounts = () => {
     const cart = JSON.parse(localStorage.getItem("cart")) || [];
     const fav = JSON.parse(localStorage.getItem("favorites")) || [];
+    const orders = JSON.parse(localStorage.getItem("orders")) || [];
+
     setCartCount(cart.length);
     setFavCount(fav.length);
+    setOrdersCount(orders.length);
   };
 
   useEffect(() => {
     updateCounts();
 
-    // مراقبة تغييرات localStorage (بين الصفحات)
     const onStorageChange = () => updateCounts();
     window.addEventListener("storage", onStorageChange);
 
@@ -25,7 +27,9 @@ export const StoreProvider = ({ children }) => {
   }, []);
 
   return (
-    <StoreContext.Provider value={{ cartCount, favCount, updateCounts }}>
+    <StoreContext.Provider
+      value={{ cartCount, favCount, ordersCount, updateCounts }}
+    >
       {children}
     </StoreContext.Provider>
   );

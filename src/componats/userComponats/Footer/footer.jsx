@@ -5,10 +5,11 @@ import { FaFacebook, FaInstagram, FaTiktok, FaWhatsapp } from "react-icons/fa";
 const Footer = () => {
   return (
     <Box
+  
       component="footer"
       sx={{
-        mt: 5,
-        py: 5,
+        mt: 4,
+        py: 2,
         px: { xs: 2, sm: 6 },
         backgroundColor: "#2072AF",
         color: "#F0F8FF",
@@ -23,7 +24,10 @@ const Footer = () => {
           Drop Store
         </Typography>
         <Typography variant="body2" sx={{ opacity: 0.9 }}>
-          Best place to shop online. Quality products at fair prices.
+        The best place for online shopping in terms of value for money
+        </Typography>
+        <Typography variant="body2" sx={{ opacity: 0.9 }}>
+        أفضل مكان للتسوق عبر الإنترنت من حيث القيمة مقابل السعر
         </Typography>
       </Box>
 
@@ -49,7 +53,7 @@ const Footer = () => {
         </IconButton>
         <IconButton
           component="a"
-          href="https://www.tiktok.com/@drop_store_1?_t=ZS-90k9dO1Fahr&_r=1"
+          href="https://www.tiktok.com/@drop_store_0?_t=ZS-90w6c9XYUTq&_r=1"
           target="_blank"
           color="inherit"
           sx={{ "&:hover": { color: "#F0F8FF" } }}
