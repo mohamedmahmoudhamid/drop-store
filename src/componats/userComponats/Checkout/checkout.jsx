@@ -363,14 +363,6 @@ const Checkout = () => {
       });
   };
 
-  const handleClick = async () => {
-    setLoading(true);
-    try {
-      await handleCompleteOrder();
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const renderCustomerForm = () => (
     <Paper
@@ -970,7 +962,7 @@ const Checkout = () => {
         ملخص الطلب
       </Typography>
 
-      <Stack spacing={2} sx={{ mb: 3 }}>
+      <Stack spacing={3} sx={{ mb: 3 }}>
         {cart.map((item) => (
           <Box
             key={item.id}
@@ -984,7 +976,7 @@ const Checkout = () => {
                 height: 50,
                 borderRadius: 8,
                 objectFit: "cover",
-                padding: 4,
+                padding: 1,
               }}
             />
             <Box sx={{flex: 1, p: 0, display: 'flex', flexDirection: 'column' }}>
@@ -1015,7 +1007,9 @@ const Checkout = () => {
                 </Stack>
               )}
             </Box>
-            <Typography fontWeight="bold" >
+            
+        
+            <Typography fontWeight="bold"  >
               EGP {(item.final_price * item.quantity).toFixed(2)}
             </Typography>
           </Box>
@@ -1031,7 +1025,7 @@ const Checkout = () => {
         </Box>
         <Box sx={{ display: "flex", justifyContent: "space-between" }}>
           <Typography>الشحن:</Typography>
-          <Typography>{shippingCost} جنيه</Typography>
+          <Typography>{shippingCost} EGP</Typography>
         </Box>
         <Divider />
         <Box sx={{ display: "flex", justifyContent: "space-between" }}>
@@ -1039,7 +1033,7 @@ const Checkout = () => {
             الإجمالي:
           </Typography>
           <Typography variant="h6" fontWeight="bold" color="primary">
-            {finalTotal} جنيه
+            {finalTotal} EGP
           </Typography>
         </Box>
       </Stack>

@@ -18,7 +18,7 @@ import { useStore } from "../context/StoreContext";
 import apiLink from "../../../apiLink";
 
 const ProductDetails = () => {
-  const { id } = useParams(); // هنا id = documentId
+  const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -28,6 +28,7 @@ const ProductDetails = () => {
   const [size, setSize] = useState("");
   const [color, setColor] = useState("");
   const [inCart, setInCart] = useState(false);
+  const [filteredColors, setFilteredColors] = useState([]);
 
   const { updateCounts } = useStore();
 
@@ -75,10 +76,12 @@ const ProductDetails = () => {
               const variant = p.product_variants.find((v) => v.colorName === c);
               return {
                 label: c,
-                hex: variant?.colorHex || variant?.colorCode || "#000", // لو عندك colorHex أو colorCode في البيانات
+                hex: variant?.colorHex || variant?.colorCode || "#000",
                 available: variant?.quantity > 0,
+                size: variant?.size || "",
               };
             }),
+            variants: p.product_variants || [],
           };
 
           setProduct(formatted);
@@ -95,91 +98,108 @@ const ProductDetails = () => {
     fetchProduct();
   }, [id]);
 
-useEffect(() => {
-  if (product) {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const productSelections = JSON.parse(localStorage.getItem("productSelections")) || {};
-    const item = cart.find((i) => i.id === product.id);
-    
-    if (item) {
-      setInCart(true);
-      setSize(item.selectedSize || item.size || "");
-      setColor(item.selectedColor || item.color || "");
-    } else {
-      setInCart(false);
-      // قراءة الاختيارات المحفوظة من productSelections
-      const savedSelections = productSelections[product.id];
-      if (savedSelections) {
-        setSize(savedSelections.selectedSize || "");
-        setColor(savedSelections.selectedColor || "");
+  useEffect(() => {
+    if (product) {
+      const cart = JSON.parse(localStorage.getItem("cart")) || [];
+      const productSelections =
+        JSON.parse(localStorage.getItem("productSelections")) || {};
+      const item = cart.find((i) => i.id === product.id);
+
+      if (item) {
+        setInCart(true);
+        setSize(item.selectedSize || item.size || "");
+        setColor(item.selectedColor || item.color || "");
       } else {
-        setSize("");
-        setColor("");
+        setInCart(false);
+        const savedSelections = productSelections[product.id];
+        if (savedSelections) {
+          setSize(savedSelections.selectedSize || "");
+          setColor(savedSelections.selectedColor || "");
+        } else {
+          setSize("");
+          setColor("");
+        }
       }
     }
-  }
-}, [product]);
+  }, [product]);
 
-const handleCartToggle = () => {
-  if (!size || !color) {
-    setMessage("يجب اختيار المقاس واللون أولا");
-    setSeverity("warning");
-    setOpen(true);
-    return;
-  }
-
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  let updated;
-
-  if (inCart) {
-    updated = cart.filter((i) => i.id !== product.id);
-    setMessage("تمت الإزالة من السلة");
-    setSeverity("error");
-    setInCart(false);
-    setSize("");
-    setColor("");
-  } else {
-    const newItem = {
-      id: product.id,
-      name: product.name,
-      description: product.description,
-      price: product.price,
-      final_price: product.final_price,
-      image: product.images[0],
-      selectedSize: size,
-      selectedColor: color,
-      size,
-      color,
-      quantity: 1,
-    };
-
-    const existingIndex = cart.findIndex((i) => i.id === product.id);
-    if (existingIndex > -1) {
-      cart[existingIndex] = newItem;
-      updated = [...cart];
+  // تحديث الألوان المتاحة عند اختيار المقاس
+  useEffect(() => {
+    if (product && size) {
+      const colorsForSize = product.variants
+        .filter((v) => v.size === size && v.quantity > 0)
+        .map((v) => ({
+          label: v.colorName,
+          hex: v.colorHex || v.colorCode || "#000",
+          available: true,
+        }));
+      setFilteredColors(colorsForSize);
     } else {
-      updated = [...cart, newItem];
+      setFilteredColors([]);
+    }
+  }, [size, product]);
+
+  const handleCartToggle = () => {
+    if (!size || !color) {
+      setMessage("يجب اختيار المقاس واللون أولا");
+      setSeverity("warning");
+      setOpen(true);
+      return;
     }
 
-    // حفظ الاختيارات في productSelections
-    const productSelections = JSON.parse(localStorage.getItem("productSelections")) || {};
-    productSelections[product.id] = {
-      selectedColor: color,
-      selectedSize: size
-    };
-    localStorage.setItem("productSelections", JSON.stringify(productSelections));
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    let updated;
 
-    setMessage("تمت الإضافة إلى السلة");
-    setSeverity("success");
-    setInCart(true);
-  }
+    if (inCart) {
+      updated = cart.filter((i) => i.id !== product.id);
+      setMessage("تمت الإزالة من السلة");
+      setSeverity("error");
+      setInCart(false);
+      setSize("");
+      setColor("");
+    } else {
+      const newItem = {
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        final_price: product.final_price,
+        image: product.images[0],
+        selectedSize: size,
+        selectedColor: color,
+        size,
+        color,
+        quantity: 1,
+      };
 
-  localStorage.setItem("cart", JSON.stringify(updated));
-  updateCounts();
-  setOpen(true);
-};
+      const existingIndex = cart.findIndex((i) => i.id === product.id);
+      if (existingIndex > -1) {
+        cart[existingIndex] = newItem;
+        updated = [...cart];
+      } else {
+        updated = [...cart, newItem];
+      }
 
+      const productSelections =
+        JSON.parse(localStorage.getItem("productSelections")) || {};
+      productSelections[product.id] = {
+        selectedColor: color,
+        selectedSize: size,
+      };
+      localStorage.setItem(
+        "productSelections",
+        JSON.stringify(productSelections)
+      );
 
+      setMessage("تمت الإضافة إلى السلة");
+      setSeverity("success");
+      setInCart(true);
+    }
+
+    localStorage.setItem("cart", JSON.stringify(updated));
+    updateCounts();
+    setOpen(true);
+  };
 
   const handleNext = () => {
     setCurrentIndex((prev) =>
@@ -222,8 +242,6 @@ const handleCartToggle = () => {
       </Box>
     );
 
-    
-
   return (
     <Box
       sx={{
@@ -237,19 +255,19 @@ const handleCartToggle = () => {
         borderRadius: 3,
       }}
     >
-      {/* صور المنتج */}
       <Box sx={{ position: "relative", width: { xs: "100%", md: "40%" } }}>
         <Box
           component="img"
           src={product.images[currentIndex]}
           alt={product.title}
           sx={{
-            width: "100%",
-            height: 420,
+            width:"100%",
+            height: 400,
             borderRadius: 3,
             objectFit: "cover",
             boxShadow: 3,
           }}
+          
         />
 
         <Chip
@@ -291,7 +309,6 @@ const handleCartToggle = () => {
         </IconButton>
       </Box>
 
-      {/* تفاصيل المنتج */}
       <Box sx={{ maxWidth: 500 }}>
         <Typography variant="h4" fontWeight="bold" mb={2}>
           {product.name}
@@ -311,20 +328,31 @@ const handleCartToggle = () => {
         </Typography>
 
         {/* المقاسات */}
-        <div fontWeight="bold" mb={1}>
-          المقاس {size && <Chip label={`المحدد: ${size}`} color="primary" size="small" sx={{ ml: 1 }} />}
-        </div>
+        <Typography fontWeight="bold" mb={1}>
+          المقاس{" "}
+          {size && (
+            <Chip
+              label={`المحدد: ${size}`}
+              color="primary"
+              size="small"
+              sx={{ ml: 1 }}
+            />
+          )}
+        </Typography>
         <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 3 }}>
           {product.sizes.map((s) => (
             <Button
               key={s.label}
-              onClick={() => s.available && setSize(s.label)}
-              disabled={!s.available}
+              onClick={() => !inCart && s.available && setSize(s.label)}
+              disabled={!s.available || inCart}
               sx={{
                 minWidth: 50,
                 borderRadius: 2,
                 fontWeight: "bold",
-                border: size === s.label ? "3px solid #1976d2" : "2px solid #0d72ffff",
+                border:
+                  size === s.label
+                    ? "3px solid #1976d2"
+                    : "2px solid #0d72ffff",
                 color: s.available
                   ? size === s.label
                     ? "#fff"
@@ -332,7 +360,11 @@ const handleCartToggle = () => {
                   : "#999",
                 backgroundColor: size === s.label ? "#1976d2" : "#fff",
                 "&:hover": {
-                  backgroundColor: s.available ? "#4bd211ff" : "#f0f0f0",
+                  backgroundColor: !inCart
+                    ? s.available
+                      ? "#4bd211ff"
+                      : "#f0f0f0"
+                    : "#fff",
                   color: "#fff",
                 },
               }}
@@ -344,45 +376,70 @@ const handleCartToggle = () => {
 
         {/* الألوان */}
         <Typography fontWeight="bold" mb={1}>
-          اللون {color && <Chip label={`المحدد: ${color}`} color="primary" size="small" sx={{ ml: 1 }} />}
+          اللون{" "}
+          {color && (
+            <Chip
+              label={`المحدد: ${color}`}
+              color="primary"
+              size="small"
+              sx={{ ml: 1 }}
+            />
+          )}
         </Typography>
-     <Box sx={{ display: "flex", gap: 1.5, mb: 4 }}>
-  {product.colors.map((c) => (
-    <Box
-      key={c.label}
-      onClick={() => c.available && setColor(c.label)}
-      sx={{
-        width: 40,
-        height: 40,
-        borderRadius: "50%",
-        backgroundColor: c.hex,
-        border:
-          color === c.label ? "3px solid #1976d2" : "2px solid #ccc",
-        opacity: c.available ? 1 : 0.4,
-        cursor: c.available ? "pointer" : "not-allowed",
-        position: "relative",
-        boxShadow: color === c.label ? "0 0 10px rgba(25, 118, 210, 0.5)" : "none",
-      }}
-    >
-      {color === c.label && (
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            color: "#fff",
-            fontSize: 18,
-            fontWeight: "bold",
-            textShadow: "1px 1px 2px rgba(0,0,0,0.5)",
-          }}
-        >
-          ✓
+
+        <Box sx={{ display: "flex", gap: 1.5, mb: 4, flexWrap: "wrap" }}>
+          {size ? (
+            filteredColors.length > 0 ? (
+              filteredColors.map((c) => (
+                <Box
+                  key={c.label}
+                  onClick={() => !inCart && c.available && setColor(c.label)}
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    backgroundColor: c.hex,
+                    border:
+                      color === c.label
+                        ? "3px solid #1976d2"
+                        : "2px solid #ccc",
+                    opacity: c.available ? 1 : 0.4,
+                    cursor:
+                      inCart || !c.available ? "not-allowed" : "pointer",
+                    position: "relative",
+                    boxShadow:
+                      color === c.label
+                        ? "0 0 10px rgba(25, 118, 210, 0.5)"
+                        : "none",
+                  }}
+                >
+                  {color === c.label && (
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        color: "#fff",
+                        fontSize: 18,
+                        fontWeight: "bold",
+                        textShadow: "1px 1px 2px rgba(0,0,0,0.5)",
+                      }}
+                    >
+                      ✓
+                    </Box>
+                  )}
+                </Box>
+              ))
+            ) : (
+              <Typography color="text.secondary">
+                لا توجد ألوان متاحة لهذا المقاس
+              </Typography>
+            )
+          ) : (
+            <Typography color="error">اختر المقاس أولاً</Typography>
+          )}
         </Box>
-      )}
-    </Box>
-  ))}
-</Box>
 
         <Button
           variant={inCart ? "outlined" : "contained"}
@@ -401,7 +458,6 @@ const handleCartToggle = () => {
         </Button>
       </Box>
 
-      {/* التنبيه */}
       <Snackbar
         open={open}
         autoHideDuration={2000}

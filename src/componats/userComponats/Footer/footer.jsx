@@ -5,31 +5,33 @@ import { FaFacebook, FaInstagram, FaTiktok, FaWhatsapp } from "react-icons/fa";
 const Footer = () => {
   return (
     <Box
-  
       component="footer"
       sx={{
+         
+           
         mt: 4,
         py: 2,
         px: { xs: 2, sm: 6 },
         backgroundColor: "#2072AF",
         color: "#F0F8FF",
         textAlign: "center",
-        borderRadius:2,
-       
+        borderRadius: 2,
       }}
     >
-     
       <Box mb={3}>
         <Typography variant="h6" fontWeight="bold" gutterBottom>
           Drop Store
         </Typography>
         <Typography variant="body2" sx={{ opacity: 0.9 }}>
-        The best place for online shopping in terms of value for money
+          The best place for online shopping in terms of value for money
         </Typography>
-        <Typography variant="body2" sx={{ opacity: 0.9 }}>
-        أفضل مكان للتسوق عبر الإنترنت من حيث القيمة مقابل السعر
+        <Typography variant="body2"  sx={{ opacity: 0.9 }}>
+          أفضل مكان للتسوق عبر الإنترنت من حيث القيمة مقابل السعر
         </Typography>
       </Box>
+      <Typography variant="body2" mb={2} sx={{ opacity: 0.9 }}>
+        تابعنا على وسائل التواصل الاجتماعي
+      </Typography>
 
       {/* Social Icons */}
       <Box mb={3} display="flex" justifyContent="center" gap={2}>
@@ -62,10 +64,6 @@ const Footer = () => {
         </IconButton>
       </Box>
 
-  
-     
-
-     
       <Box
         sx={{
           textAlign: "center",
@@ -83,9 +81,8 @@ const Footer = () => {
           justifyContent="center"
           alignItems="center"
           gap={1}
-          mt={2}
+          // mt={2}
         >
-        
           <Typography
             variant="body2"
             sx={{
@@ -95,7 +92,7 @@ const Footer = () => {
             }}
           >
             Website Design by :
-         <br />
+            <br />
             <Link
               href="https://wa.me/201280538625"
               target="_blank"
@@ -108,9 +105,9 @@ const Footer = () => {
                 "&:hover": { textDecoration: "underline" },
               }}
             >
-             {"< Mohamed Mahmoud />"}
+              {"< Mohamed Mahmoud />"}
             </Link>
-         <br />
+            <br />
             <Link
               href="https://wa.me/201120203912"
               target="_blank"
@@ -123,7 +120,7 @@ const Footer = () => {
                 "&:hover": { textDecoration: "underline" },
               }}
             >
-             {"< MohamedA.Elhameid />"}
+              {"< MohamedA.Elhameid />"}
             </Link>
           </Typography>
         </Box>
@@ -133,5 +130,3 @@ const Footer = () => {
 };
 
 export default Footer;
-
-

@@ -28,6 +28,7 @@ import {
   Favorite,
   ShoppingCartOutlined,
   ShoppingCart,
+  BorderStyle,
 } from "@mui/icons-material";
 import { useStore } from "../context/StoreContext";
 
@@ -157,9 +158,10 @@ export default function ProductCard({ product }) {
 
   return (
     <>
-      <Fade className="fade" in timeout={500}>
+      <div>
         <Card
           sx={{
+            borderStyle:"none",
             borderRadius: "33px 5px 18px 5px",
             p: { xs: 0.5, sm: 0.5, md: 0 },
             overflow: "hidden",
@@ -169,22 +171,17 @@ export default function ProductCard({ product }) {
             position: "relative",
             background:
               "linear-gradient(to bottom right,#ffffff,#f7f8fa,#f2f4f8)",
-            // width: "100%",
-            width: {  xs: 180, sm: 200, md: 250 ,lg:280},
+            width: "100%",
             maxWidth: "none",
             height: "100%",
             display: "flex",
             opacity: 1,
-            
+
             flexDirection: "column",
             "&:hover": {
-             
               boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
-
             },
-           
           }}
-         
           className="card"
         >
           <Chip
@@ -213,7 +210,6 @@ export default function ProductCard({ product }) {
                 zIndex: 2,
                 width: { xs: 32, sm: 40 },
                 height: { xs: 32, sm: 40 },
-              
               }}
             >
               {isFavorite ? (
@@ -227,29 +223,27 @@ export default function ProductCard({ product }) {
               )}
             </IconButton>
           </Tooltip>
-<Box sx={{ overflow: "hidden", borderRadius: "8px 8px 0 0" }}> 
-
-          <CardMedia
-            component="img"
-            image={item.image}
-            alt={item.name}
-            onClick={() => navigate(`/product/${item.id}`)}
-            sx={{
-              width: "100%",
-              height: 140,
-              objectFit: "cover",
-              borderBottom: "1px solid #eee",
-            overflow: "hidden",
-              opacity: item.available ? 1 : 0.6,
-              flexShrink: 0,
-              borderRadius: "8px 8px 0 0",
-              transition: "transform 0.3s ease",
-              backgroundColor: "#f5f5f5",
-              "&:hover": { transform: "scale(1.3)" },
-            }}
-
-          />
-</Box>
+          <Box sx={{ overflow: "hidden", borderRadius: "8px 8px 0 0" }}>
+            <CardMedia
+              component="img"
+              image={item.image}
+              alt={item.name}
+              onClick={() => navigate(`/product/${item.id}`)}
+              sx={{
+                width: "100%",
+                height: 140,
+                objectFit: "cover",
+                borderBottom: "1px solid #eee",
+                overflow: "hidden",
+                opacity: item.available ? 1 : 0.6,
+                flexShrink: 0,
+                borderRadius: "8px 8px 0 0",
+                transition: "transform 0.3s ease",
+                backgroundColor: "#f5f5f5",
+                "&:hover": { transform: "scale(1.3)" },
+              }}
+            />
+          </Box>
 
           <CardContent
             sx={{
@@ -363,7 +357,7 @@ export default function ProductCard({ product }) {
             </Button>
           </CardContent>
         </Card>
-      </Fade>
+      </div>
 
       {/* Snackbar */}
       <Snackbar
@@ -409,88 +403,97 @@ export default function ProductCard({ product }) {
         </DialogTitle>
 
         <DialogContent sx={{ p: 2 }}>
-         <Stack spacing={3}>
-  {/* الألوان */}
-  {item.product_variants?.some((v) => v.quantity > 0) && (
-    <Box>
-      <Typography
-        variant="subtitle1"
-        sx={{ mb: 1.5, fontWeight: "bold" }}
-      >
-        اللون
-      </Typography>
-      <Grid container spacing={1}>
-        {[...new Set(item.product_variants
-          .filter((v) => v.quantity > 0)
-          .map((v) => v.colorName))].map((color, index) => (
-          <Grid item xs={3} key={index}>
-            <Paper
-              elevation={selectedColor === color ? 4 : 1}
-              sx={{
-                p: 1.5,
-                textAlign: "center",
-                cursor: "pointer",
-                borderRadius: 2,
-                border:
-                  selectedColor === color
-                    ? "2px solid #1976d2"
-                    : "1px solid #e0e0e0",
-                backgroundColor:
-                  selectedColor === color ? "#e3f2fd" : "white",
-              }}
-              onClick={() => setSelectedColor(color)}
-            >
-              <Typography variant="caption">{color}</Typography>
-            </Paper>
-          </Grid>
-        ))}
-      </Grid>
-    </Box>
-  )}
+          <Stack spacing={3}>
+            {/* الألوان */}
+            {item.product_variants?.some((v) => v.quantity > 0) && (
+              <Box>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ mb: 1.5, fontWeight: "bold" }}
+                >
+                  اللون
+                </Typography>
+                <Grid container spacing={1}>
+                  {[
+                    ...new Set(
+                      item.product_variants
+                        .filter((v) => v.quantity > 0)
+                        .map((v) => v.colorName)
+                    ),
+                  ].map((color, index) => (
+                    <Grid item xs={3} key={index}>
+                      <Paper
+                        elevation={selectedColor === color ? 4 : 1}
+                        sx={{
+                          p: 1.5,
+                          textAlign: "center",
+                          cursor: "pointer",
+                          borderRadius: 2,
+                          border:
+                            selectedColor === color
+                              ? "2px solid #1976d2"
+                              : "1px solid #e0e0e0",
+                          backgroundColor:
+                            selectedColor === color ? "#e3f2fd" : "white",
+                        }}
+                        onClick={() => setSelectedColor(color)}
+                      >
+                        <Typography variant="caption">{color}</Typography>
+                      </Paper>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+            )}
 
-  {/* المقاسات */}
-  {item.product_variants?.some((v) => v.quantity > 0) && (
-    <Box>
-      <Typography
-        variant="subtitle1"
-        sx={{ mb: 1.5, fontWeight: "bold" }}
-      >
-        المقاس
-      </Typography>
-      <Grid container spacing={1}>
-        {[...new Set(item.product_variants
-          .filter((v) => 
-            v.quantity > 0 &&
-            (!selectedColor || v.colorName === selectedColor)
-          )
-          .map((v) => v.size))].map((size, index) => (
-          <Grid item xs={3} key={index}>
-            <Paper
-              elevation={selectedSize === size ? 4 : 1}
-              sx={{
-                p: 1.5,
-                textAlign: "center",
-                cursor: "pointer",
-                borderRadius: 2,
-                border:
-                  selectedSize === size
-                    ? "2px solid #1976d2"
-                    : "1px solid #e0e0e0",
-                backgroundColor:
-                  selectedSize === size ? "#e3f2fd" : "white",
-              }}
-              onClick={() => setSelectedSize(size)}
-            >
-              <Typography variant="body2" sx={{ fontWeight: "bold" }}>
-                {size}
-              </Typography>
-            </Paper>
-          </Grid>
-        ))}
-      </Grid>
-    </Box>
-  )}
-</Stack>
+            {/* المقاسات */}
+            {item.product_variants?.some((v) => v.quantity > 0) && (
+              <Box>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ mb: 1.5, fontWeight: "bold" }}
+                >
+                  المقاس
+                </Typography>
+                <Grid container spacing={1}>
+                  {[
+                    ...new Set(
+                      item.product_variants
+                        .filter(
+                          (v) =>
+                            v.quantity > 0 &&
+                            (!selectedColor || v.colorName === selectedColor)
+                        )
+                        .map((v) => v.size)
+                    ),
+                  ].map((size, index) => (
+                    <Grid item xs={3} key={index}>
+                      <Paper
+                        elevation={selectedSize === size ? 4 : 1}
+                        sx={{
+                          p: 1.5,
+                          textAlign: "center",
+                          cursor: "pointer",
+                          borderRadius: 2,
+                          border:
+                            selectedSize === size
+                              ? "2px solid #1976d2"
+                              : "1px solid #e0e0e0",
+                          backgroundColor:
+                            selectedSize === size ? "#e3f2fd" : "white",
+                        }}
+                        onClick={() => setSelectedSize(size)}
+                      >
+                        <Typography variant="body2" sx={{ fontWeight: "bold" }}>
+                          {size}
+                        </Typography>
+                      </Paper>
+                    </Grid>
+                  ))}
+                </Grid>
+              </Box>
+            )}
+          </Stack>
         </DialogContent>
 
         <DialogActions sx={{ p: 2, gap: 1 }}>
