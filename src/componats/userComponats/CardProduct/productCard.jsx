@@ -114,7 +114,7 @@ export default function ProductCard({ product }) {
 
     localStorage.setItem("cart", JSON.stringify(updated));
 
-    // حفظ اختيارات اللون والمقاس للمنتج في localStorage منفصل
+    // // حفظ اختيارات اللون والمقاس للمنتج في localStorage منفصل
     const productSelections =
       JSON.parse(localStorage.getItem("productSelections")) || {};
     productSelections[item.id] = {
@@ -125,7 +125,9 @@ export default function ProductCard({ product }) {
       "productSelections",
       JSON.stringify(productSelections)
     );
+    
 
+    
     setMessage("تمت الإضافة إلى السلة");
     setInCart(true);
     setSeverity("success");
@@ -156,207 +158,228 @@ export default function ProductCard({ product }) {
     setOpen(true);
   };
 
+
+
+  
   return (
     <>
       <div>
-        <Card
-          sx={{
-            borderStyle:"none",
-            borderRadius: "33px 5px 18px 5px",
-            p: { xs: 0.5, sm: 0.5, md: 0 },
-            overflow: "hidden",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
-            transition: "all 0.3s ease, box-shadow 0.3s ease",
-            cursor: "pointer",
-            position: "relative",
-            background:
-              "linear-gradient(to bottom right,#ffffff,#f7f8fa,#f2f4f8)",
-            width: "100%",
-            maxWidth: "none",
-            height: "100%",
-            display: "flex",
-            opacity: 1,
+       <Card
+  sx={{
+    borderStyle: "none",
+    borderRadius: "33px 5px 18px 5px",
+    p: { xs: 0.5, sm: 0.5, md: 0 },
+    overflow: "hidden",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+    transition: "all 0.3s ease, box-shadow 0.3s ease",
+    cursor: "pointer",
+    position: "relative",
+    background: "linear-gradient(to bottom right,#ffffff,#f7f8fa,#f2f4f8)",
+    width: "100%",
+    maxWidth: "none",
+    height: 350,
+    display: "flex",
+    flexDirection: "column",
+    "&:hover": {
+      boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
+    },
+  }}
+>
+  <Chip
+    label={item.available ? "متاح" : "غير متاح"}
+    color={item.available ? "success" : "error"}
+    sx={{
+      position: "absolute",
+      top: { xs: 8, sm: 12 },
+      left: { xs: 8, sm: 12 },
+      fontWeight: "bold",
+      fontSize: { xs: "0.65rem", sm: "0.8rem" },
+      zIndex: 2,
+      height: { xs: 20, sm: 24 },
+    }}
+  />
 
-            flexDirection: "column",
-            "&:hover": {
-              boxShadow: "0 8px 30px rgba(0,0,0,0.2)",
-            },
-          }}
-          className="card"
-        >
-          <Chip
-            label={item.available ? "متاح" : "غير متاح"}
-            color={item.available ? "success" : "error"}
+  <Tooltip title={isFavorite ? "إزالة من المفضلة" : "إضافة للمفضلة"}>
+    <IconButton
+      onClick={() => handleToggleFavorite(item)}
+      sx={{
+        position: "absolute",
+        top: { xs: 8, sm: 12 },
+        right: { xs: 8, sm: 12 },
+        backgroundColor: "rgba(255, 255, 255, 0.49)",
+        "&:hover": { backgroundColor: "#fff" },
+        zIndex: 2,
+        width: { xs: 32, sm: 40 },
+        height: { xs: 32, sm: 40 },
+      }}
+    >
+      {isFavorite ? (
+        <Favorite sx={{ color: "#e53935", fontSize: { xs: 20, sm: 26 } }} />
+      ) : (
+        <FavoriteBorder sx={{ color: "#444", fontSize: { xs: 20, sm: 26 } }} />
+      )}
+    </IconButton>
+  </Tooltip>
+
+  <Box
+    sx={{
+      position: "relative",
+      overflow: "hidden",
+      borderRadius: "8px 8px 0 0",
+      flexShrink: 0,
+      backgroundColor: "#f5f5f5",
+      width: "100%",
+      height: 160,
+    }}
+  >
+    {/* skeleton placeholder */}
+    <Box
+      sx={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        width: "100%",
+        height: "100%",
+        backgroundColor: "#eee",
+        animation: "pulse 1.4s infinite ease-in-out",
+        "@keyframes pulse": {
+          "0%": { opacity: 0.8 },
+          "50%": { opacity: 0.5 },
+          "100%": { opacity: 0.8 },
+        },
+      }}
+    />
+
+    <CardMedia
+      component="img"
+      src={item.image}
+      alt={item.name}
+      decoding="async"
+          loading="lazy"
+          fetchpriority="high"
+      onClick={() => navigate(`/product/${item.id}`)}
+      sx={{
+        width: "100%",
+        height: 180,
+        objectFit: "cover",
+        borderBottom: "1px solid #eee",
+      borderRadius: "8px 8px 0 0",
+        cursor: "pointer",
+        "&:hover": { transform: "scale(1.03)" },
+        backgroundColor: "#f5f5f5",
+      }}
+      onLoad={(e) => {
+        e.target.style.opacity = 1;
+        e.target.previousSibling.style.display = "none";
+      }}
+    />
+  </Box>
+
+  <CardContent
+    sx={{
+      flexGrow: 1,
+      display: "flex",
+      flexDirection: "column",
+      p: { xs: 1.5, sm: 2 },
+    }}
+  >
+    <Typography
+      variant="h6"
+      fontWeight="bold"
+      sx={{
+        mb: 0.5,
+        textTransform: "capitalize",
+        color: "#222",
+        fontSize: { xs: "0.9rem", sm: "1.1rem", md: "1.25rem" },
+        lineHeight: 1.2,
+      }}
+      noWrap
+    >
+      {item.name}
+    </Typography>
+
+    {/* <Typography
+      variant="body2"
+      color="text.secondary"
+      sx={{
+        height: { xs: 32, sm: 36, md: 40 },
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.875rem" },
+        lineHeight: 1.3,
+      }}
+    >
+      {item.description}
+    </Typography> */}
+
+    <Divider />
+
+    <Stack
+      direction="column"
+      alignItems="center"
+      justifyContent="center"
+      spacing={1}
+    >
+      {item.discount > 0 && (
+        <>
+          <Typography
+            variant="h6"
             sx={{
-              position: "absolute",
-              top: { xs: 8, sm: 12 },
-              left: { xs: 8, sm: 12 },
+              textDecoration: "line-through",
+              color: "#999",
+              fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.875rem" },
+            }}
+          >
+            EGP {item.price}
+          </Typography>
+          <Chip
+           label={`Sale ${item.discount}%`}
+
+            color="success"
+            size="small"
+            sx={{
               fontWeight: "bold",
-              fontSize: { xs: "0.65rem", sm: "0.8rem" },
-              zIndex: 2,
+              px: 1,
+              fontSize: { xs: "0.65rem", sm: "0.75rem" },
               height: { xs: 20, sm: 24 },
             }}
           />
+        </>
+      )}
 
-          <Tooltip title={isFavorite ? "إزالة من المفضلة" : "إضافة للمفضلة"}>
-            <IconButton
-              onClick={() => handleToggleFavorite(item)}
-              sx={{
-                position: "absolute",
-                top: { xs: 8, sm: 12 },
-                right: { xs: 8, sm: 12 },
-                backgroundColor: "rgba(255, 255, 255, 0.49)",
-                "&:hover": { backgroundColor: "#fff" },
-                zIndex: 2,
-                width: { xs: 32, sm: 40 },
-                height: { xs: 32, sm: 40 },
-              }}
-            >
-              {isFavorite ? (
-                <Favorite
-                  sx={{ color: "#e53935", fontSize: { xs: 20, sm: 26 } }}
-                />
-              ) : (
-                <FavoriteBorder
-                  sx={{ color: "#444", fontSize: { xs: 20, sm: 26 } }}
-                />
-              )}
-            </IconButton>
-          </Tooltip>
-          <Box sx={{ overflow: "hidden", borderRadius: "8px 8px 0 0" }}>
-            <CardMedia
-              component="img"
-              image={item.image}
-              alt={item.name}
-              onClick={() => navigate(`/product/${item.id}`)}
-              sx={{
-                width: "100%",
-                height: 140,
-                objectFit: "cover",
-                borderBottom: "1px solid #eee",
-                overflow: "hidden",
-                opacity: item.available ? 1 : 0.6,
-                flexShrink: 0,
-                borderRadius: "8px 8px 0 0",
-                transition: "transform 0.3s ease",
-                backgroundColor: "#f5f5f5",
-                "&:hover": { transform: "scale(1.3)" },
-              }}
-            />
-          </Box>
+      <Typography
+        fontWeight="bold"
+        color="primary"
+        sx={{
+          fontSize: { xs: "0.9rem", sm: "1.1rem", md: "1.25rem" },
+        }}
+      >
+        EGP {item.final_price}
+      </Typography>
+    </Stack>
 
-          <CardContent
-            sx={{
-              flexGrow: 1,
-              display: "flex",
-              flexDirection: "column",
-              p: { xs: 1.5, sm: 2 },
-            }}
-          >
-            <Typography
-              variant={{ xs: "subtitle1", sm: "h6" }}
-              fontWeight="bold"
-              sx={{
-                mb: 0.5,
-                textTransform: "capitalize",
-                color: "#222",
-                fontSize: { xs: "0.9rem", sm: "1.1rem", md: "1.25rem" },
-                lineHeight: 1.2,
-              }}
-            >
-              {item.name}
-            </Typography>
+    <Button
+      fullWidth
+      variant={inCart ? "outlined" : "contained"}
+      color={inCart ? "error" : "primary"}
+      startIcon={inCart ? <ShoppingCart /> : <ShoppingCartOutlined />}
+      onClick={() => handleAddToCart(item)}
+      disabled={!item.available}
+      sx={{
+        mt: "auto",
+        borderRadius: 3,
+        py: { xs: 0.8, sm: 1 },
+        fontWeight: "bold",
+        textTransform: "none",
+        fontSize: { xs: "0.75rem", sm: "0.875rem" },
+        minHeight: { xs: 36, sm: 40 },
+      }}
+    >
+      {inCart ? "إزالة من السلة" : "أضف للسلة"}
+    </Button>
+  </CardContent>
+</Card>
 
-            <Typography
-              variant="body2"
-              color="text.secondary"
-              sx={{
-                height: { xs: 32, sm: 36, md: 40 },
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                fontSize: { xs: "0.75rem", sm: "0.8rem", md: "0.875rem" },
-                lineHeight: 1.3,
-              }}
-            >
-              {item.description}
-            </Typography>
-
-            <Divider />
-
-            <Stack
-              direction="column"
-              alignItems="center"
-              justifyContent="center"
-              spacing={1}
-              // sx={{ mb: 1 }}
-            >
-              <Stack
-                direction="column"
-                display="flex"
-                justifyContent="center"
-                spacing={{ xs: 1, sm: 1 }}
-                alignItems="center"
-              >
-                {item.discount > 0 && (
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      textDecoration: "line-through",
-                      color: "#999",
-                      fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.875rem" },
-                    }}
-                  >
-                    EGP {item.price}
-                  </Typography>
-                )}
-
-                {item.discount > 0 && (
-                  <Chip
-                    label={`%خصم ${item.discount}`}
-                    color="success"
-                    size="small"
-                    sx={{
-                      fontWeight: "bold",
-                      px: 1,
-                      fontSize: { xs: "0.65rem", sm: "0.75rem" },
-                      height: { xs: 20, sm: 24 },
-                    }}
-                  />
-                )}
-                <Typography
-                  variant={{ xs: "subtitle2", sm: "h6" }}
-                  fontWeight="bold"
-                  color="primary"
-                  sx={{
-                    fontSize: { xs: "0.9rem", sm: "1.1rem", md: "1.25rem" },
-                  }}
-                >
-                  EGP {item.final_price}
-                </Typography>
-              </Stack>
-            </Stack>
-
-            <Button
-              fullWidth
-              variant={inCart ? "outlined" : "contained"}
-              color={inCart ? "error" : "primary"}
-              startIcon={inCart ? <ShoppingCart /> : <ShoppingCartOutlined />}
-              onClick={() => handleAddToCart(item)}
-              disabled={!item.available}
-              sx={{
-                mt: "auto",
-                borderRadius: 3,
-                py: { xs: 0.8, sm: 1 },
-                fontWeight: "bold",
-                textTransform: "none",
-                fontSize: { xs: "0.75rem", sm: "0.875rem" },
-                minHeight: { xs: 36, sm: 40 },
-              }}
-            >
-              {inCart ? "إزالة من السلة" : "أضف للسلة"}
-            </Button>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Snackbar */}

@@ -256,19 +256,23 @@ const ProductDetails = () => {
       }}
     >
       <Box sx={{ position: "relative", width: { xs: "100%", md: "40%" } }}>
-        <Box
-          component="img"
-          src={product.images[currentIndex]}
-          alt={product.title}
-          sx={{
-            width:"100%",
-            height: 400,
-            borderRadius: 3,
-            objectFit: "cover",
-            boxShadow: 3,
-          }}
-          
-        />
+       <Box
+  component="img"
+  src={product.images[currentIndex]}
+  alt={product.title}
+  loading="lazy"
+  sx={{
+    width: "100%",
+    height: 400,
+    borderRadius: 3,
+    objectFit: "cover",
+    boxShadow: 3,
+    backgroundColor: "#f5f5f5", // مساحة ثابتة أثناء تحميل الصورة
+    transition: "opacity 0.3s ease",
+  }}
+  onLoad={(e) => (e.target.style.opacity = 1)}
+/>
+
 
         <Chip
           label={product.available ? "متاح" : "غير متاح"}

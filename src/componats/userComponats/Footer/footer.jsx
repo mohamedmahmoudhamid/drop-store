@@ -7,8 +7,9 @@ const Footer = () => {
     <Box
       component="footer"
       sx={{
+        
          
-           
+            minHeight: "300px",
         mt: 4,
         py: 2,
         px: { xs: 2, sm: 6 },
@@ -22,11 +23,15 @@ const Footer = () => {
         <Typography variant="h6" fontWeight="bold" gutterBottom>
           Drop Store
         </Typography>
-        <Typography variant="body2" sx={{ opacity: 0.9 }}>
-          The best place for online shopping in terms of value for money
+       <Typography
+  variant="body2"
+  sx={{ opacity: 0.9, display: "block", width: "100%" }}
+>  The best place for online shopping in terms of value for money
         </Typography>
-        <Typography variant="body2"  sx={{ opacity: 0.9 }}>
-          أفضل مكان للتسوق عبر الإنترنت من حيث القيمة مقابل السعر
+       <Typography
+  variant="body2"
+  sx={{ opacity: 0.9, display: "block", width: "100%" }}
+>  أفضل مكان للتسوق عبر الإنترنت من حيث القيمة مقابل السعر
         </Typography>
       </Box>
       <Typography variant="body2" mb={2} sx={{ opacity: 0.9 }}>
@@ -39,28 +44,29 @@ const Footer = () => {
           component="a"
           href="https://www.facebook.com/share/1ACsxeHcCr/?mibextid=wwXIfr"
           target="_blank"
+          
           color="inherit"
-          sx={{ "&:hover": { color: "#F0F8FF" } }}
+          sx={{  width: 40, height: 40 ,"&:hover": { color: "#F0F8FF" } }}
         >
-          <FaFacebook />
+          <FaFacebook size={20}/>
         </IconButton>
         <IconButton
           component="a"
           href="https://www.instagram.com/drop.store.1?igsh=MTZ1bDJxemloa3ZhMw=="
           target="_blank"
           color="inherit"
-          sx={{ "&:hover": { color: "#F0F8FF" } }}
+            sx={{  width: 40, height: 40 ,"&:hover": { color: "#F0F8FF" } }}
         >
-          <FaInstagram />
+          <FaInstagram size={20} />
         </IconButton>
         <IconButton
           component="a"
           href="https://www.tiktok.com/@drop_store_0?_t=ZS-90w6c9XYUTq&_r=1"
           target="_blank"
           color="inherit"
-          sx={{ "&:hover": { color: "#F0F8FF" } }}
+            sx={{  width: 40, height: 40 ,"&:hover": { color: "#F0F8FF" } }}
         >
-          <FaTiktok />
+          <FaTiktok size={20}/>
         </IconButton>
       </Box>
 
