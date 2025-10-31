@@ -1,14 +1,126 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/png" href="/assets/logoo-EcB5nX5P.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
-    <script type="module" crossorigin src="/assets/index-DYaEqQ6p.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-LCB_8cli.css">
+    <title>Drop Store</title>
+
+    <!-- Meta tags -->
+    <meta property="og:title" content="Drop Store" />
+    <meta property="og:description" content="أفضل متجر للتسوق عبر الإنترنت من حيث القيمة مقابل السعر" />
+    <meta property="og:url" content="https://dropstore.com" />
+    <meta name="description" content="Drop Store هو أفضل متجر للتسوق عبر الإنترنت يقدم منتجات عالية الجودة بأفضل الأسعار." />
+    <meta name="keywords" content="Drop Store, تسوق, متجر إلكتروني, عروض, منتجات, أسعار, قيمة مقابل سعر" />
+
+    <!-- Fonts preload -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        scroll-behavior: smooth;
+        font-family: "Cairo", sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-color: #fff;
+      }
+
+      #root {
+        background: inherit;
+      }
+
+      /* إخفاء السكور بار */
+      ::-webkit-scrollbar {
+        display: none;
+      }
+
+      /* شاشة التحميل */
+      #loading-spinner {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #ffffff 0%, #f4f7fb 100%);
+        z-index: 1000;
+        transition: opacity 0.5s ease;
+      }
+
+      #loading-spinner img {
+        width: 90px;
+        height: 90px;
+        animation: pulse 2s ease-in-out infinite;
+        will-change: transform, filter;
+      }
+
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+
+      @keyframes pulse {
+        0% { transform: scale(1); filter: drop-shadow(0 0 2px #2072af50); }
+        50% { transform: scale(1.08); filter: drop-shadow(0 0 12px #2072afaa); }
+        100% { transform: scale(1); filter: drop-shadow(0 0 2px #2072af50); }
+      }
+    </style>
+    <script type="module" crossorigin src="/assets/index-0UQdb40M.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-CAOMh7P2.css">
   </head>
+
   <body>
+    <!-- شاشة التحميل -->
+    <div id="loading-spinner">
+      <div
+        style="
+          position: relative;
+          width: 150px;
+          height: 150px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        "
+      >
+        <div
+          style="
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 5px solid transparent;
+            border-top-color: #2072af;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+          "
+        ></div>
+        <img
+          src="/assets/logoo-EcB5nX5P.png"
+          alt="Drop Store logo"
+          loading="eager"
+          decoding="async"
+        />
+      </div>
+    </div>
+
+    <!-- تطبيق React -->
     <div id="root"></div>
+
+    <script>
+ document.addEventListener("DOMContentLoaded", function () {
+    const spinner = document.getElementById("loading-spinner");
+    spinner.style.transition = "opacity 0.4s";
+    spinner.style.opacity = "0";
+   setTimeout(() => spinner.remove(), 400);
+
+  });
+    </script>
+
   </body>
 </html>
