@@ -21,7 +21,7 @@ const About = () => {
       <p className="contact">
         Contact us at{" "}
         <a href="mailto:dropstoore1@gmail.com">
-          support@dropstore.com
+          dropstoore1@gmail.com
         </a>
       </p>
     </div>
@@ -29,3 +29,4 @@ const About = () => {
 };
 
 export default About;
+
