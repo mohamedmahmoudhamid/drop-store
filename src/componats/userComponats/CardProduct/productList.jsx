@@ -1,7 +1,5 @@
-
-
 import React, { useState, useEffect } from "react";
-import { Grid, CircularProgress, Typography, Box } from "@mui/material";
+import { Grid, Typography, Box, Skeleton } from "@mui/material";
 import ProductCard from "./productCard";
 import apiLink from "../../../apiLink";
 import "./productList.css";
@@ -11,9 +9,11 @@ export default function ProductsList() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`${apiLink}/products?populate=*`)
-      .then((res) => res.json())
-      .then((data) => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch(`${apiLink}/products?populate=*`);
+        const data = await res.json();
+
         const formatted = data.data.map((p) => ({
           id: p.documentId,
           name: p.name,
@@ -36,44 +36,67 @@ export default function ProductsList() {
         }));
 
         setProducts(formatted);
-        setLoading(false);
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error("Error fetching products:", error);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+
+    fetchProducts();
   }, []);
 
+  // أثناء التحميل ➜ عرض Skeletons
   if (loading) {
+    const skeletonArray = Array.from({ length: 10 });
     return (
-      <Box sx={{ textAlign: "center", mt: 5 }}>
-        <CircularProgress />
-        <Typography variant="body1" sx={{ mt: 2 }}>
-          جاري تحميل المنتجات...
-        </Typography>
-      </Box>
+      <div className="gridContainer mt-3">
+        {skeletonArray.map((_, index) => (
+          <Box
+            key={index}
+            sx={{
+              width: "100%",
+              borderRadius: "33px 5px 18px 5px",
+              overflow: "hidden",
+              background: "#fff",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+              height: 350,
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "space-between",
+              p: 2,
+            }}
+          >
+            <Skeleton
+              variant="rectangular"
+              width="100%"
+              height={160}
+              animation="wave"
+              sx={{ borderRadius: 2 }}
+            />
+            <Box sx={{ mt: 2 }}>
+              <Skeleton variant="text" width="80%" height={25} />
+              <Skeleton variant="text" width="60%" height={20} />
+            </Box>
+            <Skeleton
+              variant="rounded"
+              height={40}
+              animation="wave"
+              sx={{ borderRadius: 3 }}
+            />
+          </Box>
+        ))}
+      </div>
     );
   }
 
   return (
-    <div
-      container
-      justifyContent="center"
-      className="gridContainer mt-3"
-    >
+    <div className="gridContainer mt-3">
       {products.length > 0 ? (
         products.map((p) => (
-          <div
-            key={p.id}
-          >
-            <Box
-              sx={{
-                width: "100%",
-              }}
-            >
-              <ProductCard product={p} />
-            </Box>
-          </div>
+          <Box key={p.id} sx={{ width: "100%" }}>
+            <ProductCard product={p} />
+          </Box>
         ))
       ) : (
         <Grid item xs={12}>
